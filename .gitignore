@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Data & Models (Local storage)
+data/documents/*
+data/images/*
+!data/documents/.gitkeep
+!data/images/.gitkeep
+models/**/*.onnx
+models/**/*.bin
+
+# MLflow & ChromaDB local data
+mlruns/
+chroma_data/

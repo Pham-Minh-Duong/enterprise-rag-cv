@@ -1,0 +1,50 @@
+services:
+  fastapi_rag_app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: enterprise-rag-api
+    ports:
+      - "8001:8001"
+    depends_on:
+      - chromadb
+      - triton
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - TRITON_URL=triton:8001
+    volumes:
+      - ./data:/app/data
+    restart: always
+
+  chromadb:
+    image: chromadb/chroma:0.4.24
+    container_name: docker-chromadb-1
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    restart: always
+
+  triton:
+    image: nvcr.io/nvidia/tritonserver:24.08-py3
+    container_name: triton-server
+    command: ["tritonserver", "--model-repository=/models", "--strict-model-config=false"]
+    ports:
+      - "8003:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - ../models:/models
+    restart: always
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.16.0
+    container_name: mlflow-server
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0 --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlflow/artifacts
+    restart: always
+
+volumes:
+  chroma_data:
